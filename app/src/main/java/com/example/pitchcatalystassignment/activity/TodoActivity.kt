@@ -1,6 +1,7 @@
 package com.example.pitchcatalystassignment.activity
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.pitchcatalystassignment.data.TodoItem
@@ -14,14 +15,14 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class TodoActivity : AppCompatActivity() {
 
-    val binding by lazy {
+    private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-    var viewmodel: TodoViewmodel? = null
-    var firebaseDatabase: FirebaseDatabase? = null
-    var databaseReference: DatabaseReference? = null
-    val toDoList = mutableListOf<TodoItem>()
-    var ref: DatabaseReference? = null
+    private var viewmodel: TodoViewmodel? = null
+    private var firebaseDatabase: FirebaseDatabase? = null
+    private var databaseReference: DatabaseReference? = null
+    private val toDoList = mutableListOf<TodoItem>()
+    private var ref: DatabaseReference? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,10 +38,16 @@ class TodoActivity : AppCompatActivity() {
 
         binding.addButton.setOnClickListener {
             ref = databaseReference?.push()
-            val title = binding.editTextTitle.text.toString()
-            val body = binding.editTextBody.text.toString()
+            val title = binding.editTextTitle.text.toString().trim()
+            val body = binding.editTextBody.text.toString().trim()
             val key = ref?.key
-            viewmodel?.addDataToFirebase(this@TodoActivity,title, body, key!!, ref)
+            if(title.isNotEmpty() && body.isNotEmpty()){
+                viewmodel?.addDataToFirebase(this@TodoActivity,title, body, key!!, ref)
+            }else{
+                Toast.makeText(this, "Please enter Title and Body", Toast.LENGTH_SHORT).show()
+            }
+            binding.editTextTitle.text.clear()
+            binding.editTextBody.text.clear()
         }
 
         binding.deleteButton.setOnClickListener {
@@ -51,10 +58,5 @@ class TodoActivity : AppCompatActivity() {
             }
         }
     }
-
-
-
-
-
 
 }
